@@ -1,0 +1,2 @@
+# No extra packages needed. The bot only uses Python's built-in libraries.
+# This file just tells Railway that this is a Python project.
