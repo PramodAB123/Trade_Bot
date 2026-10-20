@@ -1,4 +1,4 @@
-# Run the paper bot on Railway for 2 weeks
+# Run the paper bot on Railway for 10 days
 
 Fake money only. No API keys anywhere in this setup. Total cost: well under the $5 trial credit.
 
@@ -48,6 +48,7 @@ Click the service, then **Deployments**, then **View logs**. Within a minute you
 PAPER TRADING ONLY. No real orders are placed.
 Mode: LIVE public prices
 Balance: 1000.00 USDT | logs in /data/ | Ctrl+C to stop
+Stops by itself at 2026-10-30 07:12 UTC (10 days after the first start).
 07:12:00  binance:...  coinbase:...  kraken:...  okx:...  | opps 0  trades 0  P&L +0.00  bal 1000.00
 ```
 
@@ -61,17 +62,21 @@ Then check **Usage** (your account menu, top right) after a day or two. Expect a
 ## Step 6: read the results
 
 You don't need to do anything special. **Every 24 hours the bot prints the full report into the
-logs** (the same output as `python report.py`). After 2 weeks, open **View logs**, search for
+logs** (the same output as `python report.py`). After 10 days the bot stops by itself and
+prints a **final report**. Then open **View logs**, search for
 `PAPER TRADING REPORT`, and copy the latest one. Paste it to me and we'll go over it.
 
 Optional, if you also want the raw CSV files: install the Railway CLI
 (`npm i -g @railway/cli`), then in a terminal run `railway login`, `railway link` (pick L_bot),
 and `railway ssh`. Inside, `python report.py` prints the report on demand and `ls /data` shows the CSVs.
 
-## Step 7: stop it after 2 weeks
+## Step 7: delete the service when you're done
 
-Click the service, **Settings**, scroll down, and click **Delete service** in the danger zone (or delete the whole
-project). Copy the last report out of the logs first. Nothing else charges you after that.
+The bot stops by itself after 10 days and Railway won't restart it. Restarts or redeploys
+before then don't reset the 10-day clock. To change the length, edit `RUN_DAYS` in `config.py`.
+
+Once you have the final report, click the service, **Settings**, scroll down, and click **Delete service** in the danger zone (or delete the whole
+project). Copy the final report out of the logs first, because deleting removes the logs too.
 
 ## If something goes wrong
 

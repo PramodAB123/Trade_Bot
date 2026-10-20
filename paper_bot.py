@@ -212,6 +212,21 @@ def last_balance(path):
 # Part 5: the main loop
 # ---------------------------------------------------------------------------
 
+def run_deadline(log_dir):
+    """When to stop for good: RUN_DAYS after the first ever start (saved to a file)."""
+    if not config.RUN_DAYS:
+        return None
+    path = os.path.join(log_dir, "started_at.txt")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            started = float(f.read().strip())
+    else:
+        started = time.time()
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(str(started))
+    return started + config.RUN_DAYS * 86400
+
+
 def main():
     ap = argparse.ArgumentParser(description="BTC paper-trading bot (fake money only)")
     ap.add_argument("--demo", action="store_true", help="use fake offline prices (for testing)")
@@ -229,6 +244,13 @@ def main():
     last_trade_at = {}
     n_opps = n_trades = 0
     end_at = time.time() + args.minutes * 60 if args.minutes else None
+    deadline = None if args.demo else run_deadline(log_dir)
+    if deadline and time.time() >= deadline:
+        print(f"The {config.RUN_DAYS}-day paper run is finished. Final report:\n", flush=True)
+        report.print_report(log_dir)
+        return 0
+    if deadline and (end_at is None or deadline < end_at):
+        end_at = deadline
     # On a server (Railway) there is no live screen, so print full lines less often.
     server = not sys.stdout.isatty()
     last_status = 0
@@ -239,7 +261,11 @@ def main():
 
     print("PAPER TRADING ONLY. No real orders are placed.")
     print(f"Mode: {'DEMO (fake prices)' if args.demo else 'LIVE public prices'}")
-    print(f"Balance: {balance:.2f} USDT | logs in {log_dir}/ | Ctrl+C to stop\n")
+    print(f"Balance: {balance:.2f} USDT | logs in {log_dir}/ | Ctrl+C to stop")
+    if deadline:
+        stop = datetime.fromtimestamp(deadline, timezone.utc)
+        print(f"Stops by itself at {stop:%Y-%m-%d %H:%M} UTC ({config.RUN_DAYS} days after the first start).")
+    print(flush=True)
 
     try:
         while end_at is None or time.time() < end_at:
@@ -294,7 +320,11 @@ def main():
         trade_f.close()
         print(f"\n\nStopped. Opportunities: {n_opps}, simulated trades: {n_trades}, "
               f"total P&L: {total_pnl:+.2f} USDT, balance: {balance:.2f} USDT")
-        print(f"Run 'python report.py{' --demo' if args.demo else ''}' for the full report.")
+        if deadline and time.time() >= deadline:
+            print(f"\nThe {config.RUN_DAYS}-day paper run is finished. Final report:\n", flush=True)
+            report.print_report(log_dir)
+        else:
+            print(f"Run 'python report.py{' --demo' if args.demo else ''}' for the full report.")
 
 
 if __name__ == "__main__":

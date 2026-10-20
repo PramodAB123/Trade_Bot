@@ -43,6 +43,10 @@ COOLDOWN_SECONDS = 5.0
 # survive restarts. On your PC it is the "logs" folder next to this file.
 LOG_DIR = os.environ.get("LOG_DIR") or os.environ.get("RAILWAY_VOLUME_MOUNT_PATH") or "logs"
 
+# Stop by itself this many days after the very first start (0 = never stop).
+# Restarts don't reset the clock: the first start time is saved next to the logs.
+RUN_DAYS = 10
+
 # On a server, print a status line every this many seconds (instead of every second).
 STATUS_EVERY_SECONDS = 60
 

@@ -2,6 +2,6 @@
   "$schema": "https://railway.com/railway.schema.json",
   "deploy": {
     "startCommand": "python paper_bot.py",
-    "restartPolicyType": "ALWAYS"
+    "restartPolicyType": "ON_FAILURE"
   }
 }
